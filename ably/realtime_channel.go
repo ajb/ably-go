@@ -693,8 +693,10 @@ func (c *RealtimeChannel) notify(msg *protocolMessage) {
 		c.queue.Fail(newErrorFromProto(msg.Error))
 	case actionMessage:
 		if c.State() == ChannelStateAttached {
-			for _, msg := range msg.Messages {
-				c.messageEmitter.Emit(subscriptionName(msg.Name), (*subscriptionMessage)(msg))
+			for _, m := range msg.Messages {
+				retMsg := (*subscriptionMessage)(m)
+				retMsg.ConnectionID = msg.ConnectionID
+				c.messageEmitter.Emit(subscriptionName(m.Name), retMsg)
 			}
 		}
 	default:
